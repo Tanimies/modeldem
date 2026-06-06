@@ -1,0 +1,76 @@
+// This is your Prisma schema file
+// SQLite does not support enums — using String fields instead
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id           String        @id @default(cuid())
+  email        String        @unique
+  password     String
+  name         String
+  role         String        @default("MODEL") // MODEL | ADMIN
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  modelProfile ModelProfile?
+}
+
+model ModelProfile {
+  id              String           @id @default(cuid())
+  userId          String           @unique
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bio             String?
+  location        String?
+  height          String?
+  measurements    String?
+  eyeColor        String?
+  hairColor       String?
+  instagram       String?
+  status          String           @default("PENDING") // PENDING | APPROVED | REJECTED
+  coverImage      String?
+  portfolioMedia  PortfolioMedia[]
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+}
+
+model PortfolioMedia {
+  id             String       @id @default(cuid())
+  modelProfileId String
+  modelProfile   ModelProfile @relation(fields: [modelProfileId], references: [id], onDelete: Cascade)
+  type           String       // IMAGE | VIDEO
+  url            String
+  caption        String?
+  isCover        Boolean      @default(false)
+  createdAt      DateTime     @default(now())
+}
+
+model EditorialStory {
+  id        String   @id @default(cuid())
+  title     String
+  category  String
+  excerpt   String
+  imageUrl  String
+  slug      String   @unique
+  published Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
+
+model Application {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  phone     String?
+  age       String?
+  height    String?
+  location  String?
+  message   String?
+  imageUrl  String?
+  status    String   @default("PENDING") // PENDING | REVIEWED | ACCEPTED | REJECTED
+  createdAt DateTime @default(now())
+}
